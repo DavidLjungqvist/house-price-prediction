@@ -1,0 +1,7 @@
+## Dataset paths ##
+paths:
+  train: data/raw/train.csv
+  test: data/raw/test.csv
+  original: data/raw/original.csv
+
+use_original_data: true
