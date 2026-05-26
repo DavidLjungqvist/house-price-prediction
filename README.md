@@ -1,7 +1,7 @@
 # Overview
 This project is a machine learning pipeline for predicting house prices using the kaggle playground: "House Prices - Advanced Regression Techniques" data sets.
 
-The workflow goes from:
+The workflow goes from: # Work in progress
 1. Data exploration
 2. Preprocessing and feature engineering
 3. Model training and evaluation

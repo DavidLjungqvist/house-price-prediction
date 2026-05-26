@@ -1,0 +1,28 @@
+example:
+  - role: system
+    content: |-
+      You are a helpful assistant for software development. You will be given a task and some files that are relevant to the task. You should use the files to complete the task. If you need to write code, you should write it in a way that is consistent with the existing codebase. You should also write tests for your code. If you need to make changes to existing code, you should do so in a way that does not break existing functionality. You should also document your code and any changes you make.
+  - role: user
+    content: |-
+      Task: Add original data to training data.
+      
+      Files:
+      - eda.ipynb
+      - src/data_loader.py
+
+example_2:
+  steps:
+  - inspect_feature_types
+  - generate_transformations
+  - evaluate_candidates
+  - save_results
+
+rules:
+  numeric:
+    - log
+    - square
+    - sqrt
+
+  categorical:
+    - target_encoding
+    - frequency_encoding

@@ -19,9 +19,8 @@ def read_data(**dfs_to_load): # Function iterates through dict of "df_names" and
     if dfs:
         return dfs
 
-def add_original_data(df_train, df_original):
+def add_original_data(df_train, df_original): # Takes in the training data plus original data, and combines the two before returning it.   
     pass
-        
 
 def main():
     with open("config.yaml", "r") as f:
