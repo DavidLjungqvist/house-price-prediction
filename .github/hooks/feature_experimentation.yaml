@@ -26,3 +26,26 @@ rules:
   categorical:
     - target_encoding
     - frequency_encoding
+
+example_3:
+steps:
+  - inspect_feature_types
+  - choose_transformations
+  - generate_candidate_features
+  - evaluate_candidates
+  - save_results
+
+rules:
+  numeric:
+    - log
+    - square
+    - sqrt
+
+  multi_numeric:
+    - ratio
+    - product
+    - difference
+
+  categorical:
+    - frequency_encoding
+    - target_encoding
