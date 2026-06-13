@@ -6,7 +6,131 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 
 
+
 TARGET = "SalePrice"
+SCHEMA = {
+    "required_columns": [
+        "house_id",
+        "sqft",
+        "bedrooms",
+        "zipcode",
+        "price"
+    ],
+
+    "dtypes": {
+        "house_id": "int64",
+        "sqft": "float64",
+        "bedrooms": "int64",
+        "zipcode": "object",
+        "price": "float64"
+    },
+
+    "ranges": {
+        "sqft": {"min": 100},
+        "bedrooms": {"min": 0, "max": 20},
+        "price": {"min": 0}
+    },
+
+    "allowed_values": {
+        "zipcode": {
+            "10001",
+            "10002",
+            "10003"
+        }
+    },
+
+    "unique_keys": ["house_id"]
+}
+
+## Validator
+
+class DataValidator:
+    def __init__(self, schema, is_train=True):
+        self.schema = schema
+        self.is_train = is_train
+
+    def validate(self, df):
+        errors = []
+
+        self._check_required_columns(df, errors)
+        self._check_dtypes(df, errors)
+        self._check_ranges(df, errors)
+        self._check_allowed_values(df, errors)
+        self._check_duplicates(df, errors)
+
+        if errors:
+            raise ValueError(
+                "Validation failed:\n" + "\n".join(errors)
+            )
+
+    def _check_required_columns(self, df, errors):
+        required = set(self.schema.get("required_columns", []))
+
+        if not self.is_train:
+            target = self.schema.get("target_column")
+            required.discard(target)
+
+        missing = set(required) - set(df.columns)
+
+        if missing:
+            errors.append(f"Missing columns: {sorted(missing)}")
+
+    def _check_dtypes(self, df, errors):
+        expected = self.schema.get("dtypes", {})
+
+        for col, dtype in expected.items():
+            if col not in df:
+                continue
+
+            if not pd.api.types.is_dtype_equal(df[col].dtype, dtype):
+                errors.append(
+                    f"{col}: expected {dtype}, got {df[col].dtype}"
+                )
+
+    def _check_ranges(self, df, errors):
+        ranges = self.schema.get("ranges", {})
+
+        for col, rule in ranges.items():
+            if col not in df:
+                continue
+
+            if "min" in rule and (df[col] < rule["min"]).any():
+                errors.append(f"{col}: values below {rule['min']}")
+
+            if "max" in rule and (df[col] > rule["max"]).any():
+                errors.append(f"{col}: values above {rule['max']}")
+
+    def _check_allowed_values(self, df, errors):
+        allowed = self.schema.get("allowed_values", {})
+
+        for col, values in allowed.items():
+            if col not in df:
+                continue
+
+            invalid = set(df[col].dropna()) - set(values)
+
+            if invalid:
+                errors.append(
+                    f"{col}: invalid values {sorted(invalid)}"
+                )
+
+    def _check_duplicates(self, df, errors):
+        keys = self.schema.get("unique_keys", [])
+
+        if keys and df.duplicated(subset=keys).any():
+            errors.append(
+                f"Duplicate rows found for key(s): {keys}"
+            )
+
+
+
+def validate_data(schema, df, is_train=True):
+    validator = DataValidator(schema, is_train=is_train)
+    validator.validate(df)
+
+
+
+
 
 # Columns where NA means "None" / absence of feature (not actually missing)
 NA_MEANS_NONE = [

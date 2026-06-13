@@ -1,0 +1,20 @@
+required_columns:
+  - house_id
+  - sqft
+  - bedrooms
+  - zipcode
+  - price
+
+dtypes:
+  sqft: float64
+  bedrooms: int64
+  price: float64
+
+ranges:
+  sqft:
+    min: 100
+  price:
+    min: 0
+
+unique_keys:
+  - house_id

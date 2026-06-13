@@ -4,7 +4,15 @@ import seaborn as sns
 
 
 ### WORK VERY MUCH IN PROGRESS ###
-def report_missing_values(df_train):    # Now working
+def print_categories(df, cols):
+    # print all existing categories and their percentages.
+    for col in cols:
+        print(f"\nColumn: `{col}`")
+        number_of = df[col].value_counts(dropna=False, normalize=True) * 100
+        for name, percentage in number_of.items():
+            print(f"  {name:13}: {percentage:6.2f}%")
+
+def report_missing_values(df_train):
     missing_values = df_train.isnull().sum()
     missing_values = missing_values[missing_values > 0]
 
@@ -24,14 +32,6 @@ def report_missing_values(df_train):    # Now working
             print(f"{feature}: {count}")
     else:
         print("✅ No missing values found in the dataset.")
-
-def print_categories(df, cols):
-    # print all existing categories and their percentages.
-    for col in cols:
-        print(f"\nColumn: `{col}`")
-        number_of = df[col].value_counts(dropna=False, normalize=True) * 100
-        for name, percentage in number_of.items():
-            print(f"  {name:13}: {percentage:6.2f}%")
 
 def report_cardinality(df, threshold=20):
     """Report the number of unique values per categorical column.
@@ -58,7 +58,6 @@ def report_cardinality(df, threshold=20):
         plt.tight_layout()
         plt.show()
     # Check if no categorical exists here
-
 
 def report_class_balance(df, col):
     """Report the distribution of values in a column (e.g. the target).
