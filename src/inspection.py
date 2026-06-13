@@ -41,7 +41,7 @@ def report_cardinality(df, threshold=20):
     cat_cols = df.select_dtypes(include="object").columns
     if cat_cols.size:
         # cardinality = df[cat_cols].value_counts(dropna=False, normalize=True).sum()
-        cardinality = cat_cols.value_counts(dropna=False, normalize=False)
+        cardinality = df[cat_cols].nunique()
         cat_cols = df[cat_cols]
         print(f"{'Column':<20} {'Unique':>8}  {'Status'}")
         print("-" * 42)
@@ -50,7 +50,7 @@ def report_cardinality(df, threshold=20):
             flag = "⚠️  HIGH" if n_unique > threshold else ""
             print(f"{col:<20} {n_unique:>8}  {flag}")
         plt.figure(figsize=(10, 6))
-        sns.barplot(x=cat_cols.index, y=cat_cols.values, palette="viridis")
+        sns.barplot(x=cardinality.index, y=cardinality.values, palette="viridis")
         plt.xticks(rotation=90)
         plt.xlabel("Features")
         plt.ylabel("Missing Values")
