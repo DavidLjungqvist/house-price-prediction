@@ -16,6 +16,7 @@ def main():
     with open("schema.yaml") as f:
         schema = yaml.safe_load(f)
     validate_data(schema, train_df)
+    validate_data(schema, test_df, False)
     # report_missing_values(train_df)
     # report_cardinality(train_df)
     # report_class_balance(train_df, "Alley")

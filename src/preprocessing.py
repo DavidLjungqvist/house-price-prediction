@@ -4,43 +4,13 @@ from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import OrdinalEncoder, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
-
-
-
-TARGET = "SalePrice"
-SCHEMA = {
-    "required_columns": [
-        "house_id",
-        "sqft",
-        "bedrooms",
-        "zipcode",
-        "price"
-    ],
-
-    "dtypes": {
-        "house_id": "int64",
-        "sqft": "float64",
-        "bedrooms": "int64",
-        "zipcode": "object",
-        "price": "float64"
-    },
-
-    "ranges": {
-        "sqft": {"min": 100},
-        "bedrooms": {"min": 0, "max": 20},
-        "price": {"min": 0}
-    },
-
-    "allowed_values": {
-        "zipcode": {
-            "10001",
-            "10002",
-            "10003"
-        }
-    },
-
-    "unique_keys": ["house_id"]
-}
+from pandas.api.types import (
+    is_object_dtype,
+    is_string_dtype,
+    is_numeric_dtype,
+    is_integer_dtype,
+    is_float_dtype,
+)
 
 ## Validator
 
@@ -62,6 +32,8 @@ class DataValidator:
             raise ValueError(
                 "Validation failed:\n" + "\n".join(errors)
             )
+        else:
+            print("Validation passed with no errors.")
 
     def _check_required_columns(self, df, errors):
         required = set(self.schema.get("required_columns", []))
@@ -75,6 +47,20 @@ class DataValidator:
         if missing:
             errors.append(f"Missing columns: {sorted(missing)}")
 
+    def _dtype_matches(self, series, expected):
+        if expected == "object":
+            return is_object_dtype(series) or is_string_dtype(series)
+
+        if expected == "int64":
+            return is_integer_dtype(series) or (
+                    is_float_dtype(series) and series.dropna().apply(float.is_integer).all()
+            )
+
+        if expected == "float64":
+            return is_float_dtype(series)
+
+        return str(series.dtype) == expected
+
     def _check_dtypes(self, df, errors):
         expected = self.schema.get("dtypes", {})
 
@@ -82,10 +68,12 @@ class DataValidator:
             if col not in df:
                 continue
 
-            if not pd.api.types.is_dtype_equal(df[col].dtype, dtype):
+            # if not pd.api.types.is_dtype_equal(df[col].dtype, dtype):
+            if not self._dtype_matches(df[col], dtype):
                 errors.append(
                     f"{col}: expected {dtype}, got {df[col].dtype}"
                 )
+
 
     def _check_ranges(self, df, errors):
         ranges = self.schema.get("ranges", {})
